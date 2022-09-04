@@ -1,7 +1,7 @@
 # Yield-Farming-for-Function-X
 
-Currently testing on Goerli
+Currently testing on Function X testnet
 
 This is the Yield Farming Smart Contract for the FXSwap - currently being tested using the OpenZeppelin's UUPS design pattern. 
 
-Transaction hash: 0xe736df1dd0d92a629e868e5677ae23c846867021117f2ab660d31e385c473152
+Transaction hash: 0x27653d87B26a4B783B90eba70db7dbf8d97174c5
