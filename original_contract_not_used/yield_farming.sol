@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// By Issei Kumagai: this gives PURSE tokens to the user for putting in LP-tokens to the pools. 
+// https://bscscan.com/address/0x41c4115d5acdff238eefca106402da97bd6dee77#code
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -10,8 +12,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
-
 interface PurseToken {
 
     function transfer(address to, uint tokens) external returns (bool success);
@@ -20,8 +20,6 @@ interface PurseToken {
     function balanceOf(address tokenOwner) external view returns (uint balance);
 
 }
-
-
 
 contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, PausableUpgradeable {
     // library for interface (basically, library becomes the wrapper)
@@ -35,7 +33,7 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of PURSEs
+        // We do some fancy math here. Basically, at any point in time, the amount of PURSEs
         // entitled to a user but is pending to be distributed is:
         //
         //   pending reward = (user.amount * pool.accPursePerShare) - user.rewardDebt
@@ -49,18 +47,18 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
 
     // Infod of each pool.
     struct PoolInfo {
-        IERC20Upgradeable lpToken;           // Address of LP token contract.
+        IERC20Upgradeable lpToken; // Address of LP token contract.
         uint256 pursePerBlock;
         uint256 bonusMultiplier;
-        uint256 lastRewardBlock;  // Last block number that PURSEs distribution occurs.
-        uint256 accPursePerShare; // Accumulated PURSEs per share, times 1e12. See below.
+        uint256 lastRewardBlock;   // Last block number that PURSEs distribution occurs.
+        uint256 accPursePerShare;  // Accumulated PURSEs per share, times 1e12. See below.
         uint256 startBlock;
     }
 
     // The PURSE TOKEN!
     PurseToken public purseToken;
-    uint256 public totalMintToken;    
-    uint256 public capMintToken;
+    // uint256 public totalMintToken; // Issei: removed by Issei
+    //uint256 public capMintToken; // Issei: removed by Issei
     IERC20Upgradeable[] public poolTokenList;
     mapping(IERC20Upgradeable => PoolInfo) public poolInfo;
 
@@ -78,6 +76,10 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
     modifier poolExist(IERC20Upgradeable _lpToken) {
         require( poolInfo[(_lpToken)].lpToken != IERC20Upgradeable(address(0)), "Pool not exist");
         _;
+    }
+
+    constructor() {
+        _disableInitializers();
     }
 
     function poolLength() external view returns (uint256) {
@@ -126,11 +128,12 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
     }
 
     // Update reward variables of the given pool to be up-to-date.
-    function updatePool(IERC20Upgradeable _lpToken) public poolExist(_lpToken){
+    // We mint tokens here.
+    function updatePool(IERC20Upgradeable _lpToken) public poolExist(_lpToken) {
         PoolInfo storage pool = poolInfo[_lpToken];
         if (block.number <= pool.lastRewardBlock) {
             return;
-        }
+        } 
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
@@ -138,16 +141,20 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
         uint256 purseReward = multiplier*pool.pursePerBlock*pool.bonusMultiplier;
-        if (totalMintToken < capMintToken) {
-            if (totalMintToken + purseReward >= capMintToken) {
-                uint256 PurseCanMint = capMintToken-totalMintToken;
-                totalMintToken += PurseCanMint;
-                purseToken.mint(address(this), PurseCanMint);
-            } else {
-                totalMintToken += purseReward;
-                purseToken.mint(address(this), purseReward);
-            }
-        }
+        // comment this out. We don't mint - we only supply tokens from our reserves.
+        // Issei: commented out the below
+        // This is minting tokens
+        // if (totalMintToken < capMintToken) { 
+        //     if (totalMintToken + purseReward >= capMintToken) {
+        //         uint256 PurseCanMint = capMintToken-totalMintToken;
+        //         totalMintToken += PurseCanMint;
+        //         purseToken.mint(address(this), PurseCanMint);
+        //     } else {
+        //         totalMintToken += purseReward;
+        //         purseToken.mint(address(this), purseReward);
+        //     }
+        // }
+
         pool.accPursePerShare = pool.accPursePerShare+(purseReward*1e12/lpSupply);
         pool.lastRewardBlock = block.number;
     }
@@ -165,29 +172,32 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
                 safePurseTransfer(msg.sender, pending);
             }
         }
+
         if (_amount > 0) {
             pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
             user.amount = user.amount+_amount;
         }
+
         user.rewardDebt = user.amount*pool.accPursePerShare/1e12;
         emit Deposit(msg.sender, _amount);
     }
 
     // Withdraw LP tokens from MasterChef.
-    function withdraw(IERC20Upgradeable _lpToken, uint256 _amount) public whenNotPaused poolExist(_lpToken){
+    function withdraw(IERC20Upgradeable _lpToken, uint256 _amount) public whenNotPaused poolExist(_lpToken) {
 
         PoolInfo storage pool = poolInfo[_lpToken];
         UserInfo storage user = userInfo[_lpToken][msg.sender];
+        
         require(user.amount >= _amount, "withdraw: not good");
 
         updatePool(_lpToken);
         uint256 pending = user.amount*pool.accPursePerShare/1e12-user.rewardDebt;
-
+        
         if (pending > 0) {
             safePurseTransfer(msg.sender, pending);
         }
 
-        if(_amount > 0) {
+        if (_amount > 0) {
             user.amount = user.amount-_amount;
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
         }
@@ -197,7 +207,7 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
     }
 
     // Harvest reward tokens from pool.
-    function claimReward(IERC20Upgradeable _lpToken) public whenNotPaused poolExist(_lpToken){
+    function claimReward(IERC20Upgradeable _lpToken) public whenNotPaused poolExist(_lpToken) {
 
         PoolInfo storage pool = poolInfo[_lpToken];
         UserInfo storage user = userInfo[_lpToken][msg.sender];
@@ -206,7 +216,7 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
         updatePool(_lpToken);
         uint256 pending = user.amount*pool.accPursePerShare/1e12-user.rewardDebt;
 
-        if(pending > 0) {
+        if (pending > 0) {
             safePurseTransfer(msg.sender, pending);
         }
         user.rewardDebt = user.amount*pool.accPursePerShare/1e12;
@@ -214,9 +224,10 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
         emit ClaimReward(msg.sender, pending);
     }
 
-    function capMintTokenUpdate (uint256 _newCap) public onlyOwner {
-        capMintToken = _newCap;
-    }
+    // Issei: code not required because we don't have a hard cap.
+    // function capMintTokenUpdate (uint256 _newCap) public onlyOwner {
+    //     capMintToken = _newCap;
+    // }
 
     // Safe purse transfer function, just in case if rounding error causes pool to not have enough PURSEs.
     function safePurseTransfer(address _to, uint256 _amount) internal {
@@ -253,8 +264,9 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
         uint256 accPursePerShare = pool.accPursePerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         uint256 purseBal = purseToken.balanceOf(address(this));
-        uint256 pendingPurseMint = capMintToken - totalMintToken;
-        uint256 totalPurseSupply = purseBal + pendingPurseMint;
+        //uint256 pendingPurseMint = capMintToken - totalMintToken; // Issei: capMintToken no longer exists. We only have Purse balance. 
+        //uint256 totalPurseSupply = purseBal + pendingPurseMint; // Issei: pendingPurseMint no longer exists. 
+        uint256 totalPurseSupply = purseBal; // Issei: we can just use pureBal without re-assigning to a new variable. design choice
         uint256 multiplier;
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             multiplier = getMultiplier(pool.lastRewardBlock, block.number);
@@ -266,9 +278,9 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
         if (pending > totalPurseSupply) {
             pending = totalPurseSupply;
         }
-
         return (pending);
     }
+    
 
     function pause() public whenNotPaused onlyOwner {
         _pause();
@@ -280,10 +292,19 @@ contract RestakingFarm is Initializable, UUPSUpgradeable, OwnableUpgradeable, Pa
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    function initialize(uint256 _capMintToken) public initializer {
+    // function initialize(PurseToken _purseToken, uint256 _capMintToken) public initializer {
+    //     name = "LP Token Restaking Farm";
+    //     purseToken = _purseToken;
+    //     capMintToken = _capMintToken;
+    //     __Pausable_init();
+    //     __Ownable_init();
+    //     __UUPSUpgradeable_init();
+
+    // Issei: original Initializer above. 
+    // Issei: _pureTokenAddress: 0x9D0Aad4B61483A96f23F12A9a103472388019231 - hardcoded for now.
+    function initialize(PurseToken _purseToken) public initializer {
         name = "LP Token Restaking Farm";
-        purseToken = PurseToken(0x9D0Aad4B61483A96f23F12A9a103472388019231);
-        capMintToken = _capMintToken;
+        purseToken = PurseToken(_purseToken);
         __Pausable_init();
         __Ownable_init();
         __UUPSUpgradeable_init();
