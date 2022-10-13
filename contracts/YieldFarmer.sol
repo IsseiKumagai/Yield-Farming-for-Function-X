@@ -19,19 +19,19 @@ contract YieldFarmer is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     // Info of each pool.
     struct PoolInfo {
-        IERC20Upgradeable lpToken; // Address of LP token contract.
-        uint256 allocPoint; // How many allocation points assigned to this pool. REWARDs to distribute per block.
-        uint256 lastRewardBlock; // Last block number that REWARDs distribution occurs.
-        uint256 accRewardPerShare; // Accumulated REWARDs per share, times 1e12. See below.
+        IERC20Upgradeable lpToken; 
+        uint256 allocPoint; 
+        uint256 lastRewardBlock; 
+        uint256 accRewardPerShare; 
     }
 
     // Info of each user.
     struct UserInfo {
-        uint256 amount; // How many LP tokens the user has provided.
-        uint256 rewardDebt; // Reward debt. See explanation below.
+        uint256 amount; 
+        uint256 rewardDebt; 
     }
 
-    // The REWARD TOKEN!
+    // The Reward Token
     IERC20Upgradeable public reward;
     // REWARD tokens created per block.
     uint256 public rewardPerBlock;
@@ -219,11 +219,8 @@ contract YieldFarmer is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 _startBlock
     ) public initializer {
         reward = _reward;
-        // 0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd
         rewardPerBlock = _rewardPerBlock;
-        // wei 900000000000000000
         startBlock = _startBlock;
-        // fxcore height (block height)
         totalAllocPoint = 0;
         BONUS_MULTIPLIER = 1;
 

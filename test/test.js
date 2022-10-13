@@ -1,181 +1,270 @@
-const { expectRevert, time } = require("@openzeppelin/test-helpers");
-const CakeToken = artifacts.require("CakeToken");
-const MasterChef = artifacts.require("MasterChef");
+const { time } = require("@openzeppelin/test-helpers");
+const { deployProxy } = require("@openzeppelin/truffle-upgrades");
+const FXToken = artifacts.require("FXToken");
+const YieldFarmer = artifacts.require("YieldFarmer");
+const DummyLPToken = artifacts.require("DummyLPToken");
 
-contract("MasterChef", ([alice, bob, carol, dev, minter]) => {
+contract("YieldFarmer", ([issei, kumagai, john, minter]) => {
   beforeEach(async () => {
-    this.cake = await CakeToken.new({ from: minter });
-    this.syrup = await SyrupBar.new(this.cake.address, { from: minter });
-    this.lp1 = await MockBEP20.new("LPToken", "LP1", "1000000", {
-      from: minter,
-    });
-    this.lp2 = await MockBEP20.new("LPToken", "LP2", "1000000", {
-      from: minter,
-    });
-    this.lp3 = await MockBEP20.new("LPToken", "LP3", "1000000", {
-      from: minter,
-    });
-    this.chef = await MasterChef.new(
-      this.cake.address,
-      this.syrup.address,
-      dev,
-      "1000",
-      "100",
-      { from: minter }
-    );
-    await this.cake.transferOwnership(this.chef.address, { from: minter });
-    await this.syrup.transferOwnership(this.chef.address, { from: minter });
+    this.FXTokenInstance = await deployProxy(FXToken, [100000000]);
+    this.YieldFarmerInstance = await deployProxy(YieldFarmer, [
+      this.FXTokenInstance.address,
+      10000,
+      1000,
+    ]);
+    this.dlpt1 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_1",
+      "DLPT1",
+      1000000000,
+    ]);
+    this.dlpt2 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_2",
+      "DLPT2",
+      1000000000,
+    ]);
+    this.dlpt3 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_3",
+      "DLPT3",
+      1000000000,
+    ]);
 
-    await this.lp1.transfer(bob, "2000", { from: minter });
-    await this.lp2.transfer(bob, "2000", { from: minter });
-    await this.lp3.transfer(bob, "2000", { from: minter });
+    await this.dlpt1.transfer(kumagai, "2000", { from: minter });
+    await this.dlpt2.transfer(kumagai, "2000", { from: minter });
+    await this.dlpt3.transfer(kumagai, "2000", { from: minter });
 
-    await this.lp1.transfer(alice, "2000", { from: minter });
-    await this.lp2.transfer(alice, "2000", { from: minter });
-    await this.lp3.transfer(alice, "2000", { from: minter });
+    await this.dlpt1.transfer(issei, "2000", { from: minter });
+    await this.dlpt2.transfer(issei, "2000", { from: minter });
+    await this.dlpt3.transfer(issei, "2000", { from: minter });
   });
   it("real case", async () => {
-    this.lp4 = await MockBEP20.new("LPToken", "LP1", "1000000", {
+    this.dlpt4 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_4",
+      "DLPT4",
+      1000000000,
+    ]);
+    this.dlpt5 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_5",
+      "DLPT5",
+      1000000000,
+    ]);
+    this.dlpt6 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_6",
+      "DLPT6",
+      1000000000,
+    ]);
+    this.dlpt7 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_7",
+      "DLPT7",
+      1000000000,
+    ]);
+    this.dlpt8 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_8",
+      "DLPT8",
+      1000000000,
+    ]);
+    this.dlpt9 = await deployProxy(DummyLPToken, [
+      "DummyLPToken_9",
+      "DLPT9",
+      1000000000,
+    ]);
+    await this.YieldFarmerInstance.add("2000", this.dlpt1.address, true, {
       from: minter,
     });
-    this.lp5 = await MockBEP20.new("LPToken", "LP2", "1000000", {
+    await this.YieldFarmerInstance.add("1000", this.dlpt2.address, true, {
       from: minter,
     });
-    this.lp6 = await MockBEP20.new("LPToken", "LP3", "1000000", {
+    await this.YieldFarmerInstance.add("500", this.dlpt3.address, true, {
       from: minter,
     });
-    this.lp7 = await MockBEP20.new("LPToken", "LP1", "1000000", {
+    await this.YieldFarmerInstance.add("500", this.dlpt3.address, true, {
       from: minter,
     });
-    this.lp8 = await MockBEP20.new("LPToken", "LP2", "1000000", {
+    await this.YieldFarmerInstance.add("500", this.dlpt3.address, true, {
       from: minter,
     });
-    this.lp9 = await MockBEP20.new("LPToken", "LP3", "1000000", {
+    await this.YieldFarmerInstance.add("500", this.dlpt3.address, true, {
       from: minter,
     });
-    await this.chef.add("2000", this.lp1.address, true, { from: minter });
-    await this.chef.add("1000", this.lp2.address, true, { from: minter });
-    await this.chef.add("500", this.lp3.address, true, { from: minter });
-    await this.chef.add("500", this.lp3.address, true, { from: minter });
-    await this.chef.add("500", this.lp3.address, true, { from: minter });
-    await this.chef.add("500", this.lp3.address, true, { from: minter });
-    await this.chef.add("500", this.lp3.address, true, { from: minter });
-    await this.chef.add("100", this.lp3.address, true, { from: minter });
-    await this.chef.add("100", this.lp3.address, true, { from: minter });
-    assert.equal((await this.chef.poolLength()).toString(), "10");
+    await this.YieldFarmerInstance.add("500", this.dlpt3.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("100", this.dlpt3.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("100", this.dlpt3.address, true, {
+      from: minter,
+    });
+    assert.equal(
+      (await this.YieldFarmerInstance.poolLength()).toString(),
+      "10"
+    );
 
     await time.advanceBlockTo("170");
-    await this.lp1.approve(this.chef.address, "1000", { from: alice });
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "0");
-    await this.chef.deposit(1, "20", { from: alice });
-    await this.chef.withdraw(1, "20", { from: alice });
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "263");
+    await this.dlpt1.approve(this.YieldFarmerInstance.address, "1000", {
+      from: issei,
+    });
+    assert.equal((await this.FXTokenInstance.balanceOf(issei)).toString(), "0");
+    await this.YieldFarmerInstance.deposit(1, "20", { from: issei });
+    await this.YieldFarmerInstance.withdraw(1, "20", { from: issei });
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "263"
+    );
 
-    await this.cake.approve(this.chef.address, "1000", { from: alice });
-    await this.chef.enterStaking("20", { from: alice });
-    await this.chef.enterStaking("0", { from: alice });
-    await this.chef.enterStaking("0", { from: alice });
-    await this.chef.enterStaking("0", { from: alice });
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "993");
-    // assert.equal((await this.chef.getPoolPoint(0, { from: minter })).toString(), '1900');
+    await this.FXTokenInstance.approve(
+      this.YieldFarmerInstance.address,
+      "1000",
+      { from: issei }
+    );
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "993"
+    );
   });
 
   it("deposit/withdraw", async () => {
-    await this.chef.add("1000", this.lp1.address, true, { from: minter });
-    await this.chef.add("1000", this.lp2.address, true, { from: minter });
-    await this.chef.add("1000", this.lp3.address, true, { from: minter });
+    await this.YieldFarmerInstance.add("1000", this.dlpt1.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("1000", this.dlpt2.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("1000", this.dlpt3.address, true, {
+      from: minter,
+    });
 
-    await this.lp1.approve(this.chef.address, "100", { from: alice });
-    await this.chef.deposit(1, "20", { from: alice });
-    await this.chef.deposit(1, "0", { from: alice });
-    await this.chef.deposit(1, "40", { from: alice });
-    await this.chef.deposit(1, "0", { from: alice });
-    assert.equal((await this.lp1.balanceOf(alice)).toString(), "1940");
-    await this.chef.withdraw(1, "10", { from: alice });
-    assert.equal((await this.lp1.balanceOf(alice)).toString(), "1950");
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "999");
-    assert.equal((await this.cake.balanceOf(dev)).toString(), "100");
+    await this.dlpt1.approve(this.YieldFarmerInstance.address, "100", {
+      from: issei,
+    });
+    await this.YieldFarmerInstance.deposit(1, "20", { from: issei });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: issei });
+    await this.YieldFarmerInstance.deposit(1, "40", { from: issei });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: issei });
+    assert.equal((await this.dlpt1.balanceOf(issei)).toString(), "1940");
+    await this.YieldFarmerInstance.withdraw(1, "10", { from: issei });
+    assert.equal((await this.dlpt1.balanceOf(issei)).toString(), "1950");
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "999"
+    );
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(john)).toString(),
+      "100"
+    );
 
-    await this.lp1.approve(this.chef.address, "100", { from: bob });
-    assert.equal((await this.lp1.balanceOf(bob)).toString(), "2000");
-    await this.chef.deposit(1, "50", { from: bob });
-    assert.equal((await this.lp1.balanceOf(bob)).toString(), "1950");
-    await this.chef.deposit(1, "0", { from: bob });
-    assert.equal((await this.cake.balanceOf(bob)).toString(), "125");
-    await this.chef.emergencyWithdraw(1, { from: bob });
-    assert.equal((await this.lp1.balanceOf(bob)).toString(), "2000");
+    await this.dlpt1.approve(this.YieldFarmerInstance.address, "100", {
+      from: kumagai,
+    });
+    assert.equal((await this.dlpt1.balanceOf(kumagai)).toString(), "2000");
+    await this.YieldFarmerInstance.deposit(1, "50", { from: kumagai });
+    assert.equal((await this.dlpt1.balanceOf(kumagai)).toString(), "1950");
+    await this.YieldFarmerInstance.deposit(1, "0", { from: kumagai });
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(kumagai)).toString(),
+      "125"
+    );
+    await this.YieldFarmerInstance.emergencyWithdraw(1, { from: kumagai });
+    assert.equal((await this.dlpt1.balanceOf(kumagai)).toString(), "2000");
   });
 
   it("staking/unstaking", async () => {
-    await this.chef.add("1000", this.lp1.address, true, { from: minter });
-    await this.chef.add("1000", this.lp2.address, true, { from: minter });
-    await this.chef.add("1000", this.lp3.address, true, { from: minter });
+    await this.YieldFarmerInstance.add("1000", this.dlpt1.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("1000", this.dlpt2.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("1000", this.dlpt3.address, true, {
+      from: minter,
+    });
 
-    await this.lp1.approve(this.chef.address, "10", { from: alice });
-    await this.chef.deposit(1, "2", { from: alice }); //0
-    await this.chef.withdraw(1, "2", { from: alice }); //1
+    await this.dlpt1.approve(this.YieldFarmerInstance.address, "100000", {
+      from: issei,
+    });
+    await this.YieldFarmerInstance.deposit(1, "2", { from: issei }); //0
+    await this.YieldFarmerInstance.withdraw(1, "2", { from: issei }); //1
 
-    await this.cake.approve(this.chef.address, "250", { from: alice });
-    await this.chef.enterStaking("240", { from: alice }); //3
-    assert.equal((await this.syrup.balanceOf(alice)).toString(), "240");
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "10");
-    await this.chef.enterStaking("10", { from: alice }); //4
-    assert.equal((await this.syrup.balanceOf(alice)).toString(), "250");
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "249");
-    await this.chef.leaveStaking(250);
-    assert.equal((await this.syrup.balanceOf(alice)).toString(), "0");
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "749");
+    await this.FXTokenInstance.approve(
+      this.YieldFarmerInstance.address,
+      "250",
+      { from: issei }
+    );
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "10"
+    );
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "249"
+    );
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "749"
+    );
   });
 
-  it("updaate multiplier", async () => {
-    await this.chef.add("1000", this.lp1.address, true, { from: minter });
-    await this.chef.add("1000", this.lp2.address, true, { from: minter });
-    await this.chef.add("1000", this.lp3.address, true, { from: minter });
+  it("update multiplier", async () => {
+    await this.YieldFarmerInstance.add("1000", this.dlpt1.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("1000", this.dlpt2.address, true, {
+      from: minter,
+    });
+    await this.YieldFarmerInstance.add("1000", this.dlpt3.address, true, {
+      from: minter,
+    });
 
-    await this.lp1.approve(this.chef.address, "100", { from: alice });
-    await this.lp1.approve(this.chef.address, "100", { from: bob });
-    await this.chef.deposit(1, "100", { from: alice });
-    await this.chef.deposit(1, "100", { from: bob });
-    await this.chef.deposit(1, "0", { from: alice });
-    await this.chef.deposit(1, "0", { from: bob });
+    await this.dlpt1.approve(this.YieldFarmerInstance.address, "100", {
+      from: issei,
+    });
+    await this.dlpt1.approve(this.YieldFarmerInstance.address, "100", {
+      from: kumagai,
+    });
+    await this.YieldFarmerInstance.deposit(1, "100", { from: issei });
+    await this.YieldFarmerInstance.deposit(1, "100", { from: kumagai });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: issei });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: kumagai });
 
-    await this.cake.approve(this.chef.address, "100", { from: alice });
-    await this.cake.approve(this.chef.address, "100", { from: bob });
-    await this.chef.enterStaking("50", { from: alice });
-    await this.chef.enterStaking("100", { from: bob });
+    await this.FXTokenInstance.approve(
+      this.YieldFarmerInstance.address,
+      "100",
+      { from: issei }
+    );
+    await this.FXTokenInstance.approve(
+      this.YieldFarmerInstance.address,
+      "100",
+      { from: kumagai }
+    );
 
-    await this.chef.updateMultiplier("0", { from: minter });
+    await this.YieldFarmerInstance.updateMultiplier("0", { from: minter });
 
-    await this.chef.enterStaking("0", { from: alice });
-    await this.chef.enterStaking("0", { from: bob });
-    await this.chef.deposit(1, "0", { from: alice });
-    await this.chef.deposit(1, "0", { from: bob });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: issei });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: kumagai });
 
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "700");
-    assert.equal((await this.cake.balanceOf(bob)).toString(), "150");
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "700"
+    );
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(kumagai)).toString(),
+      "150"
+    );
 
     await time.advanceBlockTo("265");
 
-    await this.chef.enterStaking("0", { from: alice });
-    await this.chef.enterStaking("0", { from: bob });
-    await this.chef.deposit(1, "0", { from: alice });
-    await this.chef.deposit(1, "0", { from: bob });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: issei });
+    await this.YieldFarmerInstance.deposit(1, "0", { from: kumagai });
 
-    assert.equal((await this.cake.balanceOf(alice)).toString(), "700");
-    assert.equal((await this.cake.balanceOf(bob)).toString(), "150");
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(issei)).toString(),
+      "700"
+    );
+    assert.equal(
+      (await this.FXTokenInstance.balanceOf(kumagai)).toString(),
+      "150"
+    );
 
-    await this.chef.leaveStaking("50", { from: alice });
-    await this.chef.leaveStaking("100", { from: bob });
-    await this.chef.withdraw(1, "100", { from: alice });
-    await this.chef.withdraw(1, "100", { from: bob });
-  });
-
-  it("should allow dev and only dev to update dev", async () => {
-    assert.equal((await this.chef.devaddr()).valueOf(), dev);
-    await expectRevert(this.chef.dev(bob, { from: bob }), "dev: wut?");
-    await this.chef.dev(bob, { from: dev });
-    assert.equal((await this.chef.devaddr()).valueOf(), bob);
-    await this.chef.dev(alice, { from: bob });
-    assert.equal((await this.chef.devaddr()).valueOf(), alice);
+    await this.YieldFarmerInstance.withdraw(1, "100", { from: issei });
+    await this.YieldFarmerInstance.withdraw(1, "100", { from: kumagai });
   });
 });
