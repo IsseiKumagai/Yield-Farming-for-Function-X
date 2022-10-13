@@ -14,3 +14,17 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+const { deployProxy } = require("@openzeppelin/truffle-upgrades");
+const PurseTokenUpgradable = artifacts.require("PurseTokenUpgradable.sol");
+const PurseStakingV2 = artifacts.require("PurseStakingV2");
+
+module.exports = async function (deployer) {
+  const purseTokenUpgradable = await PurseTokenUpgradable.deployed();
+  await deployProxy(PurseStakingV2, [purseTokenUpgradable.address], {
+    deployer,
+    kind: "uups",
+  });
+  const purseStakingV2 = await PurseStakingV2.deployed();
+  await purseStakingV2.updateLockPeriod(1814400);
+};
