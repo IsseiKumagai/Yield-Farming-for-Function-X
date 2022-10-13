@@ -12,16 +12,10 @@ interface IFXSwapV2Pair {
     function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
 }
 
-contract MasterChef is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract YieldFarmer is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
-
-    // Info of each user.
-    struct UserInfo {
-        uint256 amount; // How many LP tokens the user has provided.
-        uint256 rewardDebt; // Reward debt. See explanation below.
-    }
 
     // Info of each pool.
     struct PoolInfo {
@@ -29,6 +23,12 @@ contract MasterChef is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         uint256 allocPoint; // How many allocation points assigned to this pool. REWARDs to distribute per block.
         uint256 lastRewardBlock; // Last block number that REWARDs distribution occurs.
         uint256 accRewardPerShare; // Accumulated REWARDs per share, times 1e12. See below.
+    }
+
+    // Info of each user.
+    struct UserInfo {
+        uint256 amount; // How many LP tokens the user has provided.
+        uint256 rewardDebt; // Reward debt. See explanation below.
     }
 
     // The REWARD TOKEN!

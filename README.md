@@ -4,7 +4,7 @@
 
 `yarn`
 
-### Compile Contracts using Hardhat
+### Compile Contracts using Hardhat [For Mainnet]
 
 - Add fxcore network in `hardhat.config.js`:
 
@@ -19,9 +19,3 @@ networks: {
 ```
 
 - npx hardhat compile
-
-### Deploy Contracts using Hardhat
-
-- npx hardhat run deploy-factory.js --network fxcore
-- Add the Factory and WFX address as constructor arguments inside `deploy-router.js` deployment script
-- npx hardhat run deploy-router.js --network fxcore
