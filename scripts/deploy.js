@@ -1,11 +1,11 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const FarmContract = await ethers.getContractFactory("MasterChef");
-  const farmcontract = await FarmContract.deploy();
-  await farmcontract.deployed();
+  const Multicall2Contract = await ethers.getContractFactory("Multicall2");
+  const multicall2contract = await Multicall2Contract.deploy();
+  await multicall2contract.deployed();
 
-  console.log("FarmContract address:", farmcontract.address);
+  console.log("pursecontract address:", multicall2contract.address);
 }
 
 main()
