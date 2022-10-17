@@ -1,6 +1,4 @@
 node_modules
 cache
 artifacts
-secrets
-scripts
 hardhat.config.js

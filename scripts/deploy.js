@@ -1,30 +1,23 @@
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 async function main() {
-  const Multicall2Contract = await ethers.getContractFactory("Multicall2");
-  const multicall2contract = await Multicall2Contract.deploy();
-  await multicall2contract.deployed();
-
-  console.log("pursecontract address:", multicall2contract.address);
+  //const gas = await ethers.provider.getGasPrice();
+  const V1contract = await ethers.getContractFactory("YieldFarmer");
+  console.log("Deploying YieldFarmer contract...");
+  // const v1contract = await upgrades.deployProxy(V1contract, [10], {
+  //   gasPrice: gas,
+  //   initializer: "initialize",
+  // });
+  const v1contract = await upgrades.deployProxy(
+    V1contract,
+    ["0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd", 10000, 10000],
+    { kind: "uups" }
+  );
+  await v1contract.deployed();
+  console.log("V1 Contract deployed to:", v1contract.address);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
-
-const { deployProxy } = require("@openzeppelin/truffle-upgrades");
-const PurseTokenUpgradable = artifacts.require("PurseTokenUpgradable.sol");
-const PurseStakingV2 = artifacts.require("PurseStakingV2");
-
-module.exports = async function (deployer) {
-  const purseTokenUpgradable = await PurseTokenUpgradable.deployed();
-  await deployProxy(PurseStakingV2, [purseTokenUpgradable.address], {
-    deployer,
-    kind: "uups",
-  });
-  const purseStakingV2 = await PurseStakingV2.deployed();
-  await purseStakingV2.updateLockPeriod(1814400);
-};
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

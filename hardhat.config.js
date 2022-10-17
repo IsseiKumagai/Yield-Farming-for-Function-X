@@ -1,17 +1,30 @@
 require("@nomicfoundation/hardhat-toolbox");
-
-const { privateKey } = require("./secrets.json");
-
-//const GOERLI_PRIVATE_KEY = "1d42bafda1878128f3fc8c63b45e6abf4d028e238812871f94b054d22dae9a46";
-
+require("@nomiclabs/hardhat-ethers");
+require("@openzeppelin/hardhat-upgrades");
+//require("@nomiclabs/hardhat-etherscan");
+require("dotenv").config();
+console.log(process.env);
 module.exports = {
   solidity: "0.8.4",
   defaultNetwork: "fxcore",
   networks: {
     fxcore: {
-      url: `https://testnet-fx-json-web3.functionx.io:8545`,
+      url: "https://testnet-fx-json-web3.functionx.io:8545",
       chainId: 90001,
-      accounts: [privateKey],
+      accounts: [
+        "adf61ef81bac4c793852d0f3527e162665284c44de1d1a6eefdc4fd59690a1c9",
+      ],
     },
   },
 };
+// module.exports = {
+//   solidity: "0.8.4",
+//   defaultNetwork: "fxcore",
+//   networks: {
+//     fxcore: {
+//       url: process.env.RPC_URL,
+//       chainId: process.env.CHAIN_ID,
+//       accounts: [process.env.PRIVATE_KEY],
+//     },
+//   },
+// };
