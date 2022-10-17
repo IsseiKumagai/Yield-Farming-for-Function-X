@@ -9,13 +9,22 @@
 - Add fxcore network in `hardhat.config.js`:
 
 ```
-networks: {
+require("@nomicfoundation/hardhat-toolbox");
+require("@nomiclabs/hardhat-ethers");
+require("@openzeppelin/hardhat-upgrades");
+require("dotenv").config();
+module.exports = {
+  solidity: "0.8.4",
+  defaultNetwork: "fxcore",
+  networks: {
     fxcore: {
-      url: "https://fx-json-web3.functionx.io:8545",
-      chainId: 530,
-      accounts: [`0x${privateKey}`]
-    }
-}
+      url: "https://testnet-fx-json-web3.functionx.io:8545",
+      chainId: 90001,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+    },
+  },
+};
 ```
 
 - npx hardhat compile
+- npx hardhat run scripts/deploy.js --network fxcore
