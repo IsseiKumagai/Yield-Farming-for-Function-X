@@ -37,6 +37,11 @@ module.exports = {
 - npx hardhat compile
 - npx hardhat run scripts/deploy.js --network fxcore
 
+### To Upgrade
+
+- npx hardhat run scripts/upgrade_deploy.js --network fxcore
+
 ### Notes
 
 - Need to manually verify contracts. Go to: https://starscan.io/
+- Require further testing (test.js)
