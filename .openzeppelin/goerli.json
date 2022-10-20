@@ -1,0 +1,224 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x388D346b8039D35b77d8E6C403c7A2A0a3ECd8Ec",
+      "txHash": "0x82af62e941cabb806c9b65fd4fd87788789a256fc510278e335416d31ff2f661",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "b1854fe581ee542c1c48a578651c6dd063b6993418745f0dfa1f711399b2644d": {
+      "address": "0x0A3Bd76E23AeCd1BF28842acc9ad00B1B3aA6Eea",
+      "txHash": "0x8739c894baa68f5bde9a6518c4fc4beaa9acdff4f0991501052fa3be36e3e5b2",
+      "layout": {
+        "solcVersion": "0.8.7",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "reward",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_contract(IERC20Upgradeable)1623",
+            "contract": "YieldFarmer",
+            "src": "contracts/YieldFarmer.sol:35"
+          },
+          {
+            "label": "rewardPerBlock",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_uint256",
+            "contract": "YieldFarmer",
+            "src": "contracts/YieldFarmer.sol:37"
+          },
+          {
+            "label": "BONUS_MULTIPLIER",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_uint256",
+            "contract": "YieldFarmer",
+            "src": "contracts/YieldFarmer.sol:39"
+          },
+          {
+            "label": "poolInfo",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_array(t_struct(PoolInfo)4031_storage)dyn_storage",
+            "contract": "YieldFarmer",
+            "src": "contracts/YieldFarmer.sol:42"
+          },
+          {
+            "label": "userInfo",
+            "offset": 0,
+            "slot": "205",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(UserInfo)4036_storage))",
+            "contract": "YieldFarmer",
+            "src": "contracts/YieldFarmer.sol:44"
+          },
+          {
+            "label": "totalAllocPoint",
+            "offset": 0,
+            "slot": "206",
+            "type": "t_uint256",
+            "contract": "YieldFarmer",
+            "src": "contracts/YieldFarmer.sol:46"
+          },
+          {
+            "label": "startBlock",
+            "offset": 0,
+            "slot": "207",
+            "type": "t_uint256",
+            "contract": "YieldFarmer",
+            "src": "contracts/YieldFarmer.sol:48"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(PoolInfo)4031_storage)dyn_storage": {
+            "label": "struct YieldFarmer.PoolInfo[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20Upgradeable)1623": {
+            "label": "contract IERC20Upgradeable",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_struct(UserInfo)4036_storage)": {
+            "label": "mapping(address => struct YieldFarmer.UserInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(UserInfo)4036_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct YieldFarmer.UserInfo))",
+            "numberOfBytes": "32"
+          },
+          "t_struct(PoolInfo)4031_storage": {
+            "label": "struct YieldFarmer.PoolInfo",
+            "members": [
+              {
+                "label": "lpToken",
+                "type": "t_contract(IERC20Upgradeable)1623",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "allocPoint",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "lastRewardBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "accRewardPerShare",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(UserInfo)4036_storage": {
+            "label": "struct YieldFarmer.UserInfo",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "rewardDebt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}

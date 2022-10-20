@@ -1,8 +1,8 @@
 const { ethers, upgrades } = require("hardhat");
 
 async function main() {
-  const YieldFarmer = await ethers.getContractFactory("YieldFarmer");
-  console.log("Deploying YieldFarmer contract...");
+  const YieldFarmer = await ethers.getContractFactory("MasterChef");
+  console.log("Deploying MasterChef contract...");
   const rewardTokenAddress = "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd"; // WFX token address
   const rewardPerBlock = "270000000000000000"; // in wei
   const startBlock = 5214238; // block height
